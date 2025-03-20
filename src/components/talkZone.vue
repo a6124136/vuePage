@@ -5,12 +5,15 @@
             即時聊天室
         </h2>
         <div id="userBox">
+            <userLogSign v-if="userPinia.userForm"></userLogSign>
+            <!-- 呼叫的是pinia內部的屬性 -->
+            <button @click="userFormToggle" >用戶登入、註冊</button>
+            <br>
             <label for="">
                 用戶暱稱:
                 <input  placeholder="輸入暱稱" v-model="userName" >
                 <!-- 跟ref的userName綁定 -->
             </label>
-            <button @click="sendUserName" >開始聊天</button>
         </div>
         
 
@@ -18,16 +21,22 @@
 </template>
 
 <script setup>
+    import userLogSign from "./userLogSign.vue";
+    import { myPiniaStore } from "../store/myPiniaStore";
     import { ref as firebaseRef, set, onValue } from "firebase/database";
-    import { database ,auth} from "../../src/firebase.js"; // 根據你的檔案結構調整路徑
+    import { database } from "../../src/firebase.js"; // 根據你的檔案結構調整路徑
     import { ref } from "vue";
-    
+
+    const userPinia=myPiniaStore()//執行pinia
+    const userFormToggle=()=>{
+        userPinia.userFormToggle()//呼叫寫在pinia內的action改變是否顯示葉面
+    }
     const userName=ref("")
-    //V-model輸入暱稱
+
 
     const sendUserName=()=>{
-        const databaseRoot= firebaseRef(database);
-        //指定數據庫，後面參數沒寫路徑就是在根目錄底下生成
+        const databaseRoot= firebaseRef(database,"chatData");
+        //指定數據庫，後面參數沒寫路徑就是在根目錄底下生成，目前在chatData底下生成資料
         set(databaseRoot,{
             userName:userName.value
         }).then(()=>{

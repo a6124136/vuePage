@@ -21,7 +21,8 @@ export const myPiniaStore = defineStore('main',{
                 describe:"threeJS庫",
                 router:"路徑C"
             }
-        ]
+        ],
+        userForm:false
     }),
     actions:{
         sizeChange(){
@@ -30,14 +31,9 @@ export const myPiniaStore = defineStore('main',{
             this.clientHeight=window.innerHeight
             // console.log("當前寬"+this.clientWidth)
         },
-        
-        // getShareData(){
-        //     return this.shareData;
-        //     // 取得公用數據
-        // },
-        // setShareData(data){
-        //     this.shareData=data;
-        //     //改寫公用數據
-        // }
+        userFormToggle(){
+            this.userForm=!this.userForm
+            console.log("呼叫、切換註冊頁面")
+        }  
     }
 })
