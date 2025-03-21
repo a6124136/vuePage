@@ -8,12 +8,6 @@
             <userLogSign v-if="userPinia.userForm"></userLogSign>
             <!-- 呼叫的是pinia內部的屬性 -->
             <button @click="userFormToggle" >用戶登入、註冊</button>
-            <br>
-            <label for="">
-                用戶暱稱:
-                <input  placeholder="輸入暱稱" v-model="userName" >
-                <!-- 跟ref的userName綁定 -->
-            </label>
         </div>
         
 
@@ -31,13 +25,23 @@
     const userFormToggle=()=>{
         userPinia.userFormToggle()//呼叫寫在pinia內的action改變是否顯示葉面
     }
-    const userName=ref("")
-
-
+    
     const sendUserName=()=>{
         const databaseRoot= firebaseRef(database,"chatData");
         //指定數據庫，後面參數沒寫路徑就是在根目錄底下生成，目前在chatData底下生成資料
+        const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        //密碼正則測試
+        if(userName.value==""||null){
+            alert("暱稱為空")
+        }
+        if(passwordRegex.test(userPassword.value)){
+            console.log("密碼有效")
+        }else{
+            return alert("密碼格式錯誤")
+        }
         set(databaseRoot,{
+            userMail:userMail.value,
+            userPassword:userPassword.value,
             userName:userName.value
         }).then(()=>{
             // console.log("數據發送到database")
