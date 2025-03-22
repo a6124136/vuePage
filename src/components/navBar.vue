@@ -71,7 +71,7 @@ header{
     }
     header{
         perspective: 250px;
-        background: linear-gradient(85deg,rgb(91, 0, 0)  40%,red 79%,transparent 12%);
+        background: linear-gradient(90deg,rgb(91, 0, 0)  40%,red 79%,transparent 14%);
         text-align: center;
         align-items: center;
         display: flex;
@@ -102,7 +102,7 @@ header{
             border-bottom: black solid 35px;
             filter: blur(1px);
             //字體模糊效果 懸停時恢復清晰
-            width: calc(var(--window_width)/8);
+            min-width: 180px;
             height: calc(var(--window_height)/6);
             align-items: center;
             justify-content: center;
