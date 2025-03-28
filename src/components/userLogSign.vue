@@ -100,7 +100,7 @@
                 const user = userCredential.user; // 獲取用戶信息
                 const querySnapshot = await getDocs(collection(fireStoreDatabase, "users"))
                 const token=await user.getIdToken()
-                userState.setCookie("firebaseToken", token, 7);
+                userState.setCookie("firebaseToken", token, 1/24);
                 //把取得的token寫入cookie 參數7=保留7天
                 // console.log(user)
                 // console.log(`取得用戶的token? ${userToken}`)
@@ -122,12 +122,16 @@
                 //找fireBase內的暱稱 沒有就報錯
                 //打包成pinia內的user物件
                 }
-                userPinia.setUserData(userPack)
-                 //pinia寫入用戶資料
-                // console.log(userPinia.userLogInState+"登入狀態",userPinia.user+"用戶當前資料")
+                userState.setUserCookie("userData",userPack,1)
+                // cookie寫入用戶資料
+                console.log(userState.getUserCookie("userData"))
+                //看一下有沒有變
+                console.log(userState.userLogInState)
+                //看一下是否判斷成登入狀態
                 userFormToggle()
                 // 關閉登入表單
-                
+                userPinia.userIsLogin()
+                //改變用戶登入狀態
             }catch(err){
                 console.error("操作時出錯:", err);
             }
@@ -157,6 +161,7 @@
         userFormToggle()
         //執行登入後關閉登入頁面
 };
+
 </script>
 
 <style scoped  lang="scss">

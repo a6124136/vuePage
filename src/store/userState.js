@@ -5,8 +5,6 @@ export const userStateStore = defineStore('userStateStore',{
     state:()=>({
         userLogInState:false,
         //判斷用戶是否登入狀態
-        user:{},
-        //留個空物件填充用戶登入後的資料，登出後清空
     }),
     actions:{
         checkUserLogin() {
@@ -35,6 +33,31 @@ export const userStateStore = defineStore('userStateStore',{
                 expires = "; expires=" + date.toUTCString();
             }
             document.cookie = name + "=" + (value || "") + expires + "; path=/";
+            //firebaseToken = token+過期時間+路徑
+        },
+        setUserCookie(name, userData, days) {
+            const jsonString = JSON.stringify(userData); // 將物件轉換為字符串
+            const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString(); // 設置過期時間
+            document.cookie = `${name}=${encodeURIComponent(jsonString)}; expires=${expires}; path=/;`;
+            }
+        ,
+        getUserCookie(name) {
+            const cookieArr = document.cookie.split(';');
+            for (let i = 0; i < cookieArr.length; i++) {
+                const cookiePair = cookieArr[i].trim();
+                if (cookiePair.startsWith(name + '=')) {
+                const cookieValue = cookiePair.split('=')[1];
+                return JSON.parse(decodeURIComponent(cookieValue)); // 將字符串轉換回物件
+                }
+            }
+            return null; // 如果找不到 cookie，返回 null
+        },
+        userLogOut(tokenName,userDataName){
+            // console.log("登出")
+            document.cookie = tokenName+"=;"+"expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+            //name一般預設firebaseToken
+            document.cookie=userDataName+"=;"+"expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+            //清除cookie
         }
     }
 })

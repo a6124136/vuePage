@@ -4,7 +4,7 @@
         <h2>
             即時聊天室
         </h2>
-        <div id="userBox" v-if="!isLogin">
+        <div id="userBox" v-if="!userState.userLogInState">
             
             <FullScreenMask v-if="userPinia.fullScreenMask">
                 <userLogSign v-if="userPinia.userForm" @close=""></userLogSign>
@@ -13,24 +13,26 @@
             <!-- 呼叫的是pinia內部的屬性 -->
             <button @click="userFormToggle" >用戶登入、註冊</button>
         </div>
-        <div id="userLoginBox" v-if="isLogin">
-            <FullScreenMask v-if="userPinia.fullScreenMask">
-                <userLogSign v-if="userPinia.userForm" @close=""></userLogSign>
-                <!-- 蒙板內的插槽放入用戶表單 -->
-            </FullScreenMask>
-            <!-- 呼叫的是pinia內部的屬性 -->
-            <p >用戶名稱: {{ userPinia.user.nickName }}</p>
-            <button @click="logout" >登出</button>
-            <input type="text" name="" id="" placeholder="訊息" v-model="userMsg">
-            <button @click="sendUserMsg" >發送</button>
-            
-        </div>
-        <div v-for="msg in talkZoneData">
+        <!-- 聊天室內容 不管登入不登入都看的到 只影響到排版 -->
+        <div v-for="msg in talkZoneData" :class="getMessageClass(msg.userMsgContent.userName)">
             <!-- 這邊每個數據結構要看realtimeDatabase上的寫法，然後比對sendUserMsg內的包裝方式 -->
             <p>用戶姓名</p>
             {{ msg.userMsgContent.userName}}
             <span>用戶訊息:</span>
             {{msg.userMsgContent.userMSG}}
+        </div>
+
+        <div id="userLoginBox" v-if="userState.userLogInState">
+            <FullScreenMask v-if="userPinia.fullScreenMask">
+                <userLogSign v-if="userPinia.userForm" @close=""></userLogSign>
+                <!-- 蒙板內的插槽放入用戶表單 -->
+            </FullScreenMask>
+            <!-- 呼叫的是pinia內部的屬性 -->
+            <p >用戶名稱:{{ userData.nickName }}</p>
+            <button @click="logout" >登出</button>
+            <input type="text" name="" id="" placeholder="訊息" v-model="userMsg">
+            <button @click="sendUserMsg" >發送</button>
+            
         </div>
     </div>
 </template>
@@ -52,9 +54,8 @@
     const userState=userStateStore()//用戶狀態的pinia
     const talkZoneData=ref([])
     //陣列接每一條訊息
-    const isLogin=ref(userState.userLogInState)
-    //布爾值 讀到cookie內部有firebaseToken就會轉為true
-
+    var userData={}
+    // 物件接用戶資料
     //呼叫 關閉頁面
     const userFormToggle=()=>{
         userPinia.userFormToggle()//呼叫寫在pinia內的action改變是否顯示葉面
@@ -71,7 +72,7 @@
             userMsgContent:{
                 userMsgTime:new Date().toLocaleString(),
                 //當下的時間戳
-                userName:userPinia.user.nickName,
+                userName:userState.getUserCookie("userData").nickName,
                 //pinia用戶暱稱
                 userMSG:userMsg.value
                 //v-model內容
@@ -89,15 +90,16 @@
         const auth=getAuth();
         signOut(auth)
         .then(() => {
-            userPinia.setUserData({})
-            //把用戶改回空物件
-            userPinia.userIsLogin()
-            //改寫用戶登入狀態
-            console.log("用戶已成功退出",userPinia.user);
+            userState.userLogOut("firebaseToken","userData")
+            //登出後清除cookie
+            userState.checkUserLogin()
+            // 查看用戶狀態
+            console.log("用戶已成功退出");
         })
         .catch((error) => {
             console.error("退出失敗:", error);
         });
+    
 };
 
 //聊天室內容
@@ -128,8 +130,21 @@ const fetchChatData=async()=>{
         console.error("取得資料時出錯:", error);
     }
 }
+//留言的樣式
+const getMessageClass=(userName)=>{
+        return userName===userData.nickName?"userMsg":"message"
+    }
+    //判斷是不是用戶的留言，是就改變樣式
 onMounted(()=>{
     fetchChatData();//掛載時載入聊天室數據
+    setInterval(() => {
+        fetchChatData();
+        if(userState.userLogInState){
+        userData=userState.getUserCookie("userData")
+    }
+    //如果用戶登入了就把用戶資料放進物件
+    }, 1000);
+    //每1秒更新一次聊天室數據
     
 })
 
@@ -166,6 +181,14 @@ onMounted(()=>{
             text-align: center;
             margin:  0 auto;
             width: 300px;
+        }
+        .message{
+            //聊天室內容
+            color: chartreuse;
+        }
+        .userMsg{
+            //如果是用戶的留言
+            color: red;
         }
     }
 

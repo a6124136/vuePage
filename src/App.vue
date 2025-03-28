@@ -2,11 +2,17 @@
 import talkZone from './components/talkZone.vue'
 import navBar from './components/navBar.vue'
 import { userStateStore } from './store/userState'
+import { onMounted } from 'vue';
 const userStore = userStateStore();
-userStore.checkUserLogin(); // 檢查用戶登錄狀態
-
-
-
+onMounted(() => {
+  userStore.checkUserLogin();
+  console.log(userStore.userLogInState)
+  //檢查用戶登入狀態
+  setInterval(() => {
+    userStore.checkUserLogin();
+  }, 2000);
+  //每2秒檢查一次用戶狀態
+})
 
 </script>
 

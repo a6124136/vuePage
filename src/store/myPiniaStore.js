@@ -25,7 +25,6 @@ export const myPiniaStore = defineStore('main',{
         fullScreenMask:false,
         userLogInState:false,
         //判斷用戶是否登入狀態
-        user:{},
         //留個空物件填充用戶登入後的資料，登出後清空
         talkZone:[]
         //聊天室內容，在realtimeDatabase上把聊天內容挖出來後填進去，用v-for把前面幾條訊息留出來
@@ -47,11 +46,7 @@ export const myPiniaStore = defineStore('main',{
         },
         userIsLogin(){
             this.userLogInState=!this.userLogInState
-            //切換用戶登入登出狀態
-        },
-        setUserData(arg){
-            this.user=arg
-            //登入後把用戶的屬性寫入pinia中
+            //切換用戶登入登出狀態判
         },
         initAndUpdateTalkZone(arg){
             this.talkZone=arg
