@@ -1,6 +1,4 @@
 import { defineStore } from "pinia";
-import NavBar from "../components/navBar.vue";
-import FullScreenMask from "../components/FullScreenMask.vue";
 //定義儲存庫
 
 export const myPiniaStore = defineStore('main',{

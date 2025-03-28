@@ -4,7 +4,7 @@
         <h2>
             即時聊天室
         </h2>
-        <div id="userBox" v-if="!userPinia.userLogInState">
+        <div id="userBox" v-if="!isLogin">
             
             <FullScreenMask v-if="userPinia.fullScreenMask">
                 <userLogSign v-if="userPinia.userForm" @close=""></userLogSign>
@@ -13,7 +13,7 @@
             <!-- 呼叫的是pinia內部的屬性 -->
             <button @click="userFormToggle" >用戶登入、註冊</button>
         </div>
-        <div id="userLoginBox" v-if="userPinia.userLogInState">
+        <div id="userLoginBox" v-if="isLogin">
             <FullScreenMask v-if="userPinia.fullScreenMask">
                 <userLogSign v-if="userPinia.userForm" @close=""></userLogSign>
                 <!-- 蒙板內的插槽放入用戶表單 -->
@@ -39,6 +39,7 @@
     import userLogSign from "./userLogSign.vue";
     import FullScreenMask from "./FullScreenMask.vue";
     import { myPiniaStore } from "../store/myPiniaStore";
+    import { userStateStore } from "../store/userState";
     import { ref as firebaseRef, set,get,child ,push,onValue} from "firebase/database";
     //firebaseRef 建立路徑  set 修改 get 取得 child 子目錄 push 推送唯一資料 onvalue 監聽資料變化
     import { getAuth, signOut } from "firebase/auth";
@@ -47,10 +48,12 @@
 
 
     const userMsg=ref("")
-    const userPinia=myPiniaStore()//執行pinia
+    const userPinia=myPiniaStore()//執行主要的pinia
+    const userState=userStateStore()//用戶狀態的pinia
     const talkZoneData=ref([])
     //陣列接每一條訊息
-
+    const isLogin=ref(userState.userLogInState)
+    //布爾值 讀到cookie內部有firebaseToken就會轉為true
 
     //呼叫 關閉頁面
     const userFormToggle=()=>{

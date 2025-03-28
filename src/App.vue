@@ -1,7 +1,9 @@
 <script setup>
 import talkZone from './components/talkZone.vue'
 import navBar from './components/navBar.vue'
-
+import { userStateStore } from './store/userState'
+const userStore = userStateStore();
+userStore.checkUserLogin(); // 檢查用戶登錄狀態
 
 
 

@@ -23,14 +23,16 @@
 
 <script setup>
     import { myPiniaStore } from "../store/myPiniaStore";
-    import { auth, database } from "../../src/firebase.js"; // 根據你的檔案結構調整路徑
+    import { userStateStore } from "../store/userState";
+    import { auth } from "../../src/firebase.js"; // 根據你的檔案結構調整路徑
     import { createUserWithEmailAndPassword,signInWithEmailAndPassword,GoogleAuthProvider,signInWithPopup } from "firebase/auth"; 
     //身分驗證、社交媒體登入、用戶管理功能、用戶登入狀態檢驗
     import { getFirestore, setDoc, doc ,getDocs,collection} from "firebase/firestore";
     //另外保存用戶的暱稱或頭像等其他資訊，getDoc跟collection是讀取firestore上的集合
     import { ref } from "vue";
     
-    const userPinia=myPiniaStore()//執行pinia
+    const userPinia=myPiniaStore()//執行開啟表單的pinia
+    const userState=userStateStore()//用戶登入狀態pinia
     const fireStoreDatabase=getFirestore()
     //用firestore存用戶的其他資訊
 
@@ -79,29 +81,8 @@
             //         ├── uid: "userUID"
             //         ├── email: "user@example.com"
             //         └── nickname: "用戶暱稱"
-            const getDataFromFirestore = async () => {
-                const querySnapshot = await getDocs(collection(fireStoreDatabase, "users"));
-                //第二個參數是fireStore上的集合名稱
-                querySnapshot.forEach((doc) => {
-                    if(doc.uid==user.uid){
-                        return doc.nickname
-                    }else{
-                        return console.log("無名氏")
-                    }
-                // console.log(`${doc.id} => ${JSON.stringify(doc.data())}`);
-                });
-            };
-            const userPack={
-                uid:user.uid,
-                email:user.email,
-                nickName:getDataFromFirestore().catch(console.error)
-                //找fireBase內的暱稱 沒有就報錯
-                //打包成pinia內的user物件
-            }
-            userPinia.setUserData(userPack)
-            //pinia寫入用戶資料
-            userPinia.userIsLogin()
-            //轉換成登入狀態
+            loginUser()
+            //註冊完順便登入
         }catch(error){
             const errorCode = error.code;
             const errorMessage = error.message;
@@ -117,7 +98,12 @@
             try{
                 const userCredential = await signInWithEmailAndPassword(auth, userMail.value, userPassword.value)
                 const user = userCredential.user; // 獲取用戶信息
-                const querySnapshot = await getDocs(collection(fireStoreDatabase, "users"));
+                const querySnapshot = await getDocs(collection(fireStoreDatabase, "users"))
+                const token=await user.getIdToken()
+                userState.setCookie("firebaseToken", token, 7);
+                //把取得的token寫入cookie 參數7=保留7天
+                // console.log(user)
+                // console.log(`取得用戶的token? ${userToken}`)
                 //第二個參數是fireStore上的集合名稱
                 let getNickName="無名氏";
                 // ↑接從fireStore裡面取得的用戶暱稱
@@ -138,9 +124,7 @@
                 }
                 userPinia.setUserData(userPack)
                  //pinia寫入用戶資料
-                userPinia.userIsLogin()
-                //轉換成登入狀態
-                console.log(userPinia.userLogInState+"登入狀態",userPinia.user+"用戶當前資料")
+                // console.log(userPinia.userLogInState+"登入狀態",userPinia.user+"用戶當前資料")
                 userFormToggle()
                 // 關閉登入表單
                 

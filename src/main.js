@@ -4,6 +4,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { createPinia } from 'pinia'
 
+
 const vue =createApp(App)
 const pinia =createPinia()
 
